@@ -1,8 +1,15 @@
 import { Post } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
-const getAllPost = async () => {
-  const allPost = await prisma.post.findMany();
+const getAllPost = async (searchTerm?: string) => {
+  const allPost = await prisma.post.findMany({
+    where: {
+      title: {
+        contains: searchTerm as string,
+        mode: "insensitive",
+      },
+    },
+  });
   return allPost;
 };
 

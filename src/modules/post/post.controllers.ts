@@ -3,7 +3,8 @@ import { postServices } from "./post.services";
 
 const getAllPost = async (req: Request, res: Response) => {
   try {
-    const result = await postServices.getAllPost();
+    const searchTerm = req.query.searchTerm as string | undefined;
+    const result = await postServices.getAllPost(searchTerm);
 
     res.status(200).json({
       success: true,
