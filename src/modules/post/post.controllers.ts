@@ -4,7 +4,8 @@ import { postServices } from "./post.services";
 const getAllPost = async (req: Request, res: Response) => {
   try {
     const searchTerm = req.query.searchTerm as string | undefined;
-    const result = await postServices.getAllPost(searchTerm);
+    const tags = (req.query.tags as string | undefined)?.split(",");
+    const result = await postServices.getAllPost(searchTerm, tags);
 
     res.status(200).json({
       success: true,
