@@ -1,6 +1,27 @@
 import { Request, Response } from "express";
 import { postServices } from "./post.services";
-import { error } from "node:console";
+
+const getAllPost = async (req: Request, res: Response) => {
+  try {
+    const result = await postServices.getAllPost();
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Posts retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error in getAllPost: ", error);
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Something went wrong while fetching posts",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
 
 const createPost = async (req: Request, res: Response) => {
   try {
@@ -27,4 +48,5 @@ const createPost = async (req: Request, res: Response) => {
 
 export const postControllers = {
   createPost,
+  getAllPost,
 };
