@@ -69,7 +69,14 @@ const getAllPost = async (
       [sortBy]: sortOrder,
     },
   });
-  return allPost;
+
+  const pagination = await prisma.post.count({
+    where: {
+      AND: andConditions,
+    },
+  });
+
+  return { allPost, pagination };
 };
 
 const createPost = async (

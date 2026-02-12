@@ -23,8 +23,6 @@ const getAllPost = async (req: Request, res: Response) => {
       req.query,
     );
 
-    console.log(page, limit, skip, sortBy, sortOrder);
-
     const result = await postServices.getAllPost(
       page,
       limit,
@@ -43,9 +41,12 @@ const getAllPost = async (req: Request, res: Response) => {
       statusCode: 200,
       message: "Posts retrieved successfully",
       meta: {
-        count: result.length,
+        page: page,
+        limit: limit,
+        totalData: result.pagination,
+        totalPages: Math.ceil(result.pagination / limit),
       },
-      data: result,
+      data: result.allPost,
     });
   } catch (error: any) {
     console.error("Error in getAllPost: ", error);
