@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { postServices } from "./post.services";
 import { PostStatus } from "../../../generated/prisma/enums";
+import calculatePagination from "../../helpers/paginationHelper";
 
 const getAllPost = async (req: Request, res: Response) => {
   try {
@@ -18,7 +19,18 @@ const getAllPost = async (req: Request, res: Response) => {
 
     const authorId = req.query.authorId as string | undefined;
 
+    const { page, limit, skip, sortBy, sortOrder } = calculatePagination(
+      req.query,
+    );
+
+    console.log(page, limit, skip, sortBy, sortOrder);
+
     const result = await postServices.getAllPost(
+      page,
+      limit,
+      skip,
+      sortBy,
+      sortOrder,
       searchTerm,
       tags,
       isFeatured,

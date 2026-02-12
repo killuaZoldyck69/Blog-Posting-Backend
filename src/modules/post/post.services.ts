@@ -2,6 +2,11 @@ import { Post, PostStatus, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const getAllPost = async (
+  page: number,
+  limit: number,
+  skip: number,
+  sortBy: string,
+  sortOrder: string,
   searchTerm?: string,
   tags?: string[],
   isFeatured?: boolean,
@@ -55,11 +60,13 @@ const getAllPost = async (
   }
 
   const allPost = await prisma.post.findMany({
+    take: limit,
+    skip,
     where: {
       AND: andConditions,
     },
     orderBy: {
-      createdAt: "desc",
+      [sortBy]: sortOrder,
     },
   });
   return allPost;
