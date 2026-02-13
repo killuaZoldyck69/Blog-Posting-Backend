@@ -60,6 +60,34 @@ const getAllPost = async (req: Request, res: Response) => {
   }
 };
 
+const getPostById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      throw new Error("No Id");
+    }
+
+    const result = await postServices.getPostById(id);
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Posts retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error in getPostById: ", error);
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Something went wrong while fetching posts",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
 const createPost = async (req: Request, res: Response) => {
   try {
     const user = req.user;
@@ -86,4 +114,5 @@ const createPost = async (req: Request, res: Response) => {
 export const postControllers = {
   createPost,
   getAllPost,
+  getPostById,
 };
