@@ -3,6 +3,7 @@ import { postRouter } from "./modules/post/post.routes";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
+import { commentRouter } from "./modules/comment/comment.routes";
 const app: Application = express();
 
 app.use(
@@ -15,7 +16,7 @@ app.use(
 
     // // 4. allowedHeaders: Headers Better Auth needs
     // allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-  })
+  }),
 );
 
 app.use(express.json());
@@ -27,5 +28,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/posts", postRouter);
+app.use("/comments", commentRouter);
 
 export default app;
