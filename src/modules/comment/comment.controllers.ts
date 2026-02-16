@@ -90,8 +90,36 @@ const createComment = async (req: Request, res: Response) => {
   }
 };
 
+const deleteComment = async (req: Request, res: Response) => {
+  try {
+    const { commentId } = req.params;
+    const user = req?.user;
+
+    const result = await commentServices.deleteComment(
+      commentId as string,
+      user?.id as string,
+    );
+
+    res.status(204).json({
+      success: true,
+      statusCode: 204,
+      message: "Successfully comment deleted",
+    });
+  } catch (error: any) {
+    console.error("Error in getCommentById: ", error);
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to delete comment",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
 export const commentControllers = {
   createComment,
   getCommentById,
   getCommentByAuthor,
+  deleteComment,
 };
