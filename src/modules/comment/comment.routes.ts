@@ -4,7 +4,9 @@ import { auth, UserRole } from "../../middleware/auth";
 
 const router = Router();
 
-router.get("/:id", commentControllers.getCommentById);
+router.get("/:commentId", commentControllers.getCommentById);
+
+router.get("/author/:authorId", commentControllers.getCommentByAuthor);
 
 router.post(
   "/",

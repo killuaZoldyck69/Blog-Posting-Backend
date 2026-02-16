@@ -3,9 +3,9 @@ import { commentServices } from "./comment.services";
 
 const getCommentById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { commentId } = req.params;
 
-    const result = await commentServices.getCommnetById(id as string);
+    const result = await commentServices.getCommnetById(commentId as string);
 
     res.status(200).json({
       success: true,
@@ -20,6 +20,30 @@ const getCommentById = async (req: Request, res: Response) => {
       success: false,
       statusCode: 500,
       message: "Failed to get comment by id",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
+const getCommentByAuthor = async (req: Request, res: Response) => {
+  try {
+    const { authorId } = req.params;
+
+    const result = await commentServices.getCommentByAuthor(authorId as string);
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Successfully retrive comment by author id",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error in getCommentByAuthor: ", error);
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to get comment by author id",
       errorDetails: error.message || "Internal Server Error",
     });
   }
@@ -69,4 +93,5 @@ const createComment = async (req: Request, res: Response) => {
 export const commentControllers = {
   createComment,
   getCommentById,
+  getCommentByAuthor,
 };
