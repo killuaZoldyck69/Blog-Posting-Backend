@@ -65,6 +65,42 @@ const getAllPost = async (
     where: {
       AND: andConditions,
     },
+    include: {
+      comments: {
+        where: {
+          parentId: null,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          replies: {
+            orderBy: {
+              createdAt: "desc",
+            },
+            include: {
+              replies: {
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
+            },
+          },
+
+          _count: {
+            select: {
+              replies: true,
+            },
+          },
+        },
+      },
+
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+    },
     orderBy: {
       [sortBy]: sortOrder,
     },
@@ -95,6 +131,44 @@ const getPostById = async (id: string) => {
     const postData = await tx.post.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        comments: {
+          where: {
+            parentId: null,
+          },
+          include: {
+            replies: {
+              include: {
+                replies: {
+                  orderBy: {
+                    createdAt: "desc",
+                  },
+                },
+              },
+
+              orderBy: {
+                createdAt: "desc",
+              },
+            },
+
+            _count: {
+              select: {
+                replies: true,
+              },
+            },
+          },
+
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
     });
     return postData;
