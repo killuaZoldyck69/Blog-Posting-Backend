@@ -1,6 +1,30 @@
 import { Request, Response } from "express";
 import { commentServices } from "./comment.services";
 
+const getCommentById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const result = await commentServices.getCommnetById(id as string);
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Successfully retrive comment by id",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error in getCommentById: ", error);
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to get comment by id",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
 const createComment = async (req: Request, res: Response) => {
   try {
     const user = req?.user;
@@ -44,4 +68,5 @@ const createComment = async (req: Request, res: Response) => {
 
 export const commentControllers = {
   createComment,
+  getCommentById,
 };
