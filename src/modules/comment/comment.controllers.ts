@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { commentServices } from "./comment.services";
+import { success } from "better-auth/*";
 
 const getCommentById = async (req: Request, res: Response) => {
   try {
@@ -106,7 +107,7 @@ const deleteComment = async (req: Request, res: Response) => {
       message: "Successfully comment deleted",
     });
   } catch (error: any) {
-    console.error("Error in getCommentById: ", error);
+    console.error("Error in deleteComment: ", error);
 
     res.status(500).json({
       success: false,
@@ -117,9 +118,48 @@ const deleteComment = async (req: Request, res: Response) => {
   }
 };
 
+const updateComment = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    const { commentId } = req.params;
+    const data = req.body;
+
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        statusCode: 401,
+        message: "Unauthorized",
+      });
+    }
+
+    const result = await commentServices.updateComment(
+      commentId as string,
+      data,
+      user?.id as string,
+    );
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Comment updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Error in updateComment: ", error);
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to update comment",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
 export const commentControllers = {
   createComment,
   getCommentById,
   getCommentByAuthor,
   deleteComment,
+  updateComment,
 };

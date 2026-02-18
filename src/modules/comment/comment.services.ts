@@ -100,9 +100,38 @@ const deleteComment = async (commentId: string, userId: string) => {
   });
 };
 
+const updateComment = async (
+  commentId: string,
+  data: { content?: string; status?: CommentStatus },
+  userId: string,
+) => {
+  const existingComment = await prisma.comment.findFirst({
+    where: {
+      id: commentId,
+    },
+  });
+
+  if (!existingComment) {
+    throw new Error("Comment not found");
+  }
+
+  // 2. Authorization Check: Only the author can edit
+  if (existingComment.authorId !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  return await prisma.comment.update({
+    where: {
+      id: commentId,
+    },
+    data,
+  });
+};
+
 export const commentServices = {
   createComment,
   getCommnetById,
   getCommentByAuthor,
   deleteComment,
+  updateComment,
 };
