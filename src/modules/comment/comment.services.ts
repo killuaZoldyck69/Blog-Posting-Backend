@@ -128,10 +128,41 @@ const updateComment = async (
   });
 };
 
+const updateCommentStatus = async (
+  commentId: string,
+  status: CommentStatus,
+) => {
+  const commentExists = await prisma.comment.findUnique({
+    where: {
+      id: commentId,
+    },
+  });
+
+  if (!commentExists) {
+    throw new Error("Comment not found");
+  }
+
+  if (commentExists.status === status) {
+    throw new Error("Status is already the same");
+  }
+
+  const result = prisma.comment.update({
+    where: {
+      id: commentId,
+    },
+    data: {
+      status: status,
+    },
+  });
+
+  return result;
+};
+
 export const commentServices = {
   createComment,
   getCommnetById,
   getCommentByAuthor,
   deleteComment,
   updateComment,
+  updateCommentStatus,
 };

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { commentServices } from "./comment.services";
-import { success } from "better-auth/*";
 
 const getCommentById = async (req: Request, res: Response) => {
   try {
@@ -125,7 +124,7 @@ const updateComment = async (req: Request, res: Response) => {
     const data = req.body;
 
     if (!user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         statusCode: 401,
         message: "Unauthorized",
@@ -156,10 +155,55 @@ const updateComment = async (req: Request, res: Response) => {
   }
 };
 
+const updateCommentStatus = async (req: Request, res: Response) => {
+  const { commentId } = req.params;
+  const { status: newStatus } = req.body;
+
+  try {
+    if (!newStatus) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: "Status is required",
+      });
+    }
+
+    const result = await commentServices.updateCommentStatus(
+      commentId as string,
+      newStatus,
+    );
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Comment status updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.log("Error in updateCommentStatus");
+
+    if (error.message === "Status is already the same") {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: `Comment is already marked as ${newStatus}`,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to update comment status",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
 export const commentControllers = {
   createComment,
   getCommentById,
   getCommentByAuthor,
   deleteComment,
   updateComment,
+  updateCommentStatus,
 };
