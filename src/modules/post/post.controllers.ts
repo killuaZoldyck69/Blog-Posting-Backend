@@ -111,8 +111,44 @@ const createPost = async (req: Request, res: Response) => {
   }
 };
 
+const getMyPosts = async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user || !user.id) {
+    return res.status(401).json({
+      success: false,
+      statusCode: 401,
+      message: "Unauthorized. Please Log in.",
+    });
+  }
+
+  try {
+    const result = await postServices.getMyPosts(user.id);
+
+    res.status(200).json({
+      success: true,
+      stautsCode: 200,
+      message: "Your posts retrived successuflly",
+      data: result,
+      meta: {
+        totalData: result.length,
+      },
+    });
+  } catch (error: any) {
+    console.log("Error in getMyPost");
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to retrived my posts",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
 export const postControllers = {
   createPost,
   getAllPost,
   getPostById,
+  getMyPosts,
 };
