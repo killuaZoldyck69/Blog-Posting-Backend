@@ -1,6 +1,12 @@
 import { error } from "node:console";
-import { Post, PostStatus, Prisma } from "../../../generated/prisma/client";
+import {
+  CommentStatus,
+  Post,
+  PostStatus,
+  Prisma,
+} from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
+import { UserRole } from "../../middleware/auth";
 
 const getAllPost = async (
   page: number,
@@ -265,6 +271,55 @@ const deletePost = async (postId: string, userId: string, isAdmin: boolean) => {
   });
 };
 
+const getStats = async () => {
+  const [
+    totalPosts,
+    publishedPosts,
+    draftPosts,
+    archivedPosts,
+    totalViews,
+    totalComments,
+    approvedComments,
+    allUsers,
+    totalAdmin,
+    totalUsers,
+  ] = await Promise.all([
+    prisma.post.count(),
+    prisma.post.count({ where: { status: PostStatus.PUBLISHED } }),
+    prisma.post.count({ where: { status: PostStatus.DRAFT } }),
+    prisma.post.count({ where: { status: PostStatus.ARCHIVED } }),
+    prisma.post.aggregate({
+      _sum: {
+        views: true,
+      },
+    }),
+    prisma.comment.count(),
+    prisma.comment.count({ where: { status: CommentStatus.APPROVED } }),
+    prisma.user.count(),
+    prisma.user.count({ where: { role: UserRole.ADMIN } }),
+    prisma.user.count({ where: { role: UserRole.USER } }),
+  ]);
+
+  return {
+    posts: {
+      total: totalPosts,
+      published: publishedPosts,
+      drafts: draftPosts,
+      archived: archivedPosts,
+      totalViews: totalViews._sum.views || 0, // Fallback to 0 if database is empty
+    },
+    comments: {
+      total: totalComments,
+      approved: approvedComments,
+      pendingOrRejected: totalComments - approvedComments,
+    },
+    users: {
+      total: allUsers,
+      admin: totalAdmin,
+      user: totalUsers,
+    },
+  };
+};
 export const postServices = {
   createPost,
   getAllPost,
@@ -272,4 +327,5 @@ export const postServices = {
   getMyPosts,
   updatePost,
   deletePost,
+  getStats,
 };

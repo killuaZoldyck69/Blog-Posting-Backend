@@ -6,6 +6,8 @@ const router = Router();
 
 router.get("/", postControllers.getAllPost);
 
+router.get("/stats", auth(UserRole.ADMIN), postControllers.getStats);
+
 router.get(
   "/my-posts",
   auth(UserRole.ADMIN, UserRole.USER),

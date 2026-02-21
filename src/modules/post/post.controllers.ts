@@ -241,6 +241,38 @@ const deletePost = async (req: Request, res: Response) => {
     });
   }
 };
+
+const getStats = async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      statusCode: 401,
+      message: "Unauthorized",
+    });
+  }
+  try {
+    const stats = await postServices.getStats();
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Site statistics retrieved successfully",
+      data: stats,
+    });
+  } catch (error: any) {
+    console.error("Error in getSiteStats:", error);
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to retrieve site statistics",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
+
 export const postControllers = {
   createPost,
   getAllPost,
@@ -248,4 +280,5 @@ export const postControllers = {
   getMyPosts,
   updatePost,
   deletePost,
+  getStats,
 };
