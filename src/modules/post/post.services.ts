@@ -1,3 +1,4 @@
+import { error } from "node:console";
 import { Post, PostStatus, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
@@ -201,4 +202,49 @@ const getMyPosts = async (userId: string) => {
   return result;
 };
 
-export const postServices = { createPost, getAllPost, getPostById, getMyPosts };
+const updatePost = async (
+  postId: string,
+  userId: string,
+  data: Partial<Post>,
+  isAdmin: boolean,
+) => {
+  const existingPost = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+  });
+
+  if (!existingPost) {
+    throw new Error("Post not found ");
+  }
+
+  const isAuthor = existingPost.authorId === userId;
+
+  if (!isAdmin && !isAuthor) {
+    throw new Error("Unauthorized to update this post");
+  }
+
+  delete data.id;
+  delete data.authorId;
+
+  if (!isAdmin) {
+    delete data.isFeatured;
+  }
+
+  const result = await prisma.post.update({
+    where: {
+      id: postId,
+    },
+    data,
+  });
+
+  return result;
+};
+
+export const postServices = {
+  createPost,
+  getAllPost,
+  getPostById,
+  getMyPosts,
+  updatePost,
+};
