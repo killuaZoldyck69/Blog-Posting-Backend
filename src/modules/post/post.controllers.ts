@@ -188,10 +188,64 @@ const updatePost = async (req: Request, res: Response) => {
   }
 };
 
+const deletePost = async (req: Request, res: Response) => {
+  const { postId } = req.params;
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      statusCode: 401,
+      message: "Unauthorized. Please log in.",
+    });
+  }
+
+  const isAdmin = user.role === UserRole.ADMIN;
+
+  try {
+    const result = await postServices.deletePost(
+      postId as string,
+      user.id,
+      isAdmin,
+    );
+
+    res.status(200).json({
+      success: true,
+      statusCode: 204,
+      message: "Post deleted successfully",
+    });
+  } catch (error: any) {
+    console.log("Error in deletePost");
+
+    if (error.message === "Post not found") {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: "Post not found",
+      });
+    }
+
+    if (error.message === "You are not authorized for delete this post") {
+      return res.status(403).json({
+        success: false,
+        statusCode: 403,
+        message: "You are not authorized to delete this post",
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: "Failed to delete post",
+      errorDetails: error.message || "Internal Server Error",
+    });
+  }
+};
 export const postControllers = {
   createPost,
   getAllPost,
   getPostById,
   getMyPosts,
   updatePost,
+  deletePost,
 };

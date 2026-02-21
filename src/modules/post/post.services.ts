@@ -241,10 +241,35 @@ const updatePost = async (
   return result;
 };
 
+const deletePost = async (postId: string, userId: string, isAdmin: boolean) => {
+  const existingPost = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+  });
+
+  if (!existingPost) {
+    throw new Error("Post not found");
+  }
+
+  const isAuthor = existingPost.authorId === userId;
+
+  if (!isAdmin && !isAuthor) {
+    throw new Error("You are not authorized for delete this post");
+  }
+
+  return await prisma.post.delete({
+    where: {
+      id: postId,
+    },
+  });
+};
+
 export const postServices = {
   createPost,
   getAllPost,
   getPostById,
   getMyPosts,
   updatePost,
+  deletePost,
 };
