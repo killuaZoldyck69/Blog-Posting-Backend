@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { postServices } from "./post.services";
 import { PostStatus } from "../../../generated/prisma/enums";
 import calculatePagination from "../../helpers/paginationHelper";
@@ -61,7 +61,7 @@ const getAllPost = async (req: Request, res: Response) => {
   }
 };
 
-const getPostById = async (req: Request, res: Response) => {
+const getPostById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
@@ -80,16 +80,17 @@ const getPostById = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error in getPostById: ", error);
 
-    res.status(500).json({
-      success: false,
-      statusCode: 500,
-      message: "Something went wrong while fetching posts",
-      errorDetails: error.message || "Internal Server Error",
-    });
+    // res.status(500).json({
+    //   success: false,
+    //   statusCode: 500,
+    //   message: "Something went wrong while fetching posts",
+    //   errorDetails: error || "Internal Server Error",
+    // });
+    next(error);
   }
 };
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
     if (!user) {
@@ -104,11 +105,8 @@ const createPost = async (req: Request, res: Response) => {
       message: "Post Created Successfully",
       data: result,
     });
-  } catch (error) {
-    res.status(400).send({
-      error: "Post Creation Failed",
-      details: error,
-    });
+  } catch (error: any) {
+    next(error);
   }
 };
 
